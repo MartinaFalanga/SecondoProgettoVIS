@@ -1,0 +1,272 @@
+body {
+  background-color: #d6e1e8;
+}
+h1 {
+  font-family: 'Open Sans', sans-serif;
+  font-weight: bold;
+  font-size: 38px;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #47abe1;
+}
+h2 {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 20px;
+  line-height: 1.5;
+  color: black;
+}
+h3 {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 20px;
+  line-height: 1.5;
+  color: black;
+}
+p {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333333;
+}
+
+#header {
+  height: 100px;
+  width: 100%;
+}
+
+#title {
+  height: 330px;
+  width: 100%;
+  position: relative;
+}
+
+#resetButton{
+   top:51%;
+   left:55%;
+   width:100px;
+   height:40px;
+   position: absolute;
+}
+
+#divForInput{
+    text-align: center;
+    transform: scale(0.8);
+}
+
+.link{
+    stroke-width: 5.5px;
+    stroke: grey;
+}
+
+circle {
+  fill: #ccc;
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+
+text {
+  font: 10px sans-serif;
+  pointer-events: none;
+}
+
+text.shadow {
+  stroke: #fff;
+  stroke-width: 3px;
+  stroke-opacity: .8;
+}
+
+#characters{
+    position: absolute;
+}
+
+input {
+    text-align: center;
+    width: 100%;
+    height: 30;
+}
+
+datalist {
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 20px;
+  background-color: transparent;
+  border-radius: 4px;
+}
+
+
+input[type=range]::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 20px;
+  color: transparent;
+  background-color: #365f7b;
+  border-radius: 999px;
+  border: none;
+}
+input[type=range]::-moz-range-track {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 20px;
+  color: transparent;
+  background: rgb(0, 0, 0);
+  border-radius: 999px;
+  border: none;
+}
+input[type=range]::-ms-track {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 20px;
+  color: transparent;
+  background: rgb(0, 0, 0);
+  border-radius: 999px;
+  border: none;
+}
+input[type=range]::-ms-fill-lower {
+  display: none;
+}
+input[type=range]::-ms-fill-upper {
+  display: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 30px;
+  height: 30px;
+  background-color: #ffffff;
+  border: 6px solid #47abe1;
+  border-radius: 50%;
+  cursor: pointer;
+transform: translateY(-4px);}
+
+.range-value {
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.nodeName {
+  font-family: "HelveticaNeue-Light";
+  color: #000;
+}
+
+
+
+.link {
+  fill: none;
+  stroke: #ddd;
+  stroke-width: 1px;
+}
+
+svg path{
+  fill: none;
+}
+
+.node {
+  stroke: #000;
+  stroke-width: 1px;
+}
+
+#nodeInfo{
+  fill: orange;
+}
+
+#textNodeInfo{
+  color: red;
+}
+
+#my_dataviz{
+  background: gray;
+}
+
+#description{
+
+}
+
+#descriptionDiv, #graphDiv{
+  width: 80%;
+  padding: 10px;
+  border: 1px dashed #47abe1;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+}
+
+input[type=range]::-moz-range-thumb {
+  -webkit-appearance: none;
+  height: 40px;
+  width: 40px;
+  border-radius: 30px;
+  background: black;
+  box-shadow: 0px 2px 10px -2px black(1);
+}
+input[type=range]::-ms-thumb {
+  -webkit-appearance: none;
+  height: 40px;
+  width: 40px;
+  border-radius: 30px;
+  background: black;
+  box-shadow: 0px 2px 10px -2px black(1);
+}
+.ticks {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+}
+.tick {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 1px;
+  height: 10px;
+  line-height: 50px;
+}
+
+#wrapper {
+  width: 80%;
+  height:380px;
+  margin: 0 auto;
+  text-align: center;
+}
+#first {
+    width:40%;
+  height:340px;
+    float:left;
+  border: 1px dashed #47abe1;
+  transform: translateX(-0%);
+ 
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+    font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333333;
+
+ 
+}
+#second {
+    width:40%;
+    float:right;
+    height:340px;
+  border: 1px dashed #47abe1;
+    left: 50%;
+  transform: translateX(-0%);
+ 
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+    font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #333333;
+}

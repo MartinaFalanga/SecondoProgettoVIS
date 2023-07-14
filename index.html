@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>La saga Hrafnkels</title>
+  <link rel="stylesheet" href="./style.css">
+
+</head>
+<body>
+<!DOCTYPE html>
+<html>
+<link rel="stylesheet" href="style.css">
+
+<head> 
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500&family=Open+Sans&display=swap" rel="stylesheet">
+    <title>La saga Hrafnkels</title>
+    <h1><b>Esplorazione della saga Hrafnkels</b></h1>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+</head>
+
+<body>
+    <div id="descriptionDiv">
+        <p id="description">	
+La Hrafnkels saga è una delle saghe islandesi medievali che narra la storia di Hrafnkell, un potente proprietario terriero dell'Islanda vichinga. La trama ruota attorno alla sua ascesa al potere, alle sue alleanze e vendette, e al suo ruolo come sacerdote del dio Freyr.<br> Questa visualizzazione ha l'obiettivo di mostrare tramite un grafo le azioni tra i vari personaggi della saga, suddivise per capitoli. Ogni personaggio è rappresentato da un nodo all'interno del grafo mentre le azioni intraprese dai personaggi sono rappresentate con gli archi.<br>
+Per navigare tra i vari capitoli è possibile utilizzare la barra sottostante spostando il cursore sul numero del capitolo desiderato.
+</p>
+    </div>
+    <div id="divForInput">
+      <label class="sliderBar"><h2>Seleziona il capitolo da visualizzare</h2><br><br>
+            <div class="range">
+                <input id="rangeField" type="range" min="1" max="16" value="1" step="1" list="my-datalist" />
+                <div class="ticks">
+                    <span class="tick"><img src='img/number-1.png' width="30" height="30"></span>
+                    <span class="tick"><img src='img/number-2.png' width="30" height="30"></span>
+                    <span class="tick"><img src='img/number-3.png' width="30" height="30"></span>
+                    <span class="tick"><img src='img/number-4.png' width="30" height="30"></span>
+                    <span class="tick"><img src='img/number-5.png' width="30" height="30"></span>
+                    <span class="tick"><img src='img/number-6.png' width="30" height="30"></span>
+                    <span class="tick"><img src='img/number-7.png' width="30" height="30"></span>
+                    <span class="tick"><img src='img/number-8.png' width="30" height="30"></span>
+                    <span class="tick"><img src='img/number-9.png' width="30" height="30"></span>
+                    <span class="tick"><img src='img/number-10.png' width="30" height="30"></span>
+                    <span class="tick"><img src='img/number-11.png' width="30" height="30"></span>
+                    <span class="tick"><img src='img/number-12.png' width="30" height="30"></span>
+                    <span class="tick"><img src='img/number-13.png' width="30" height="30"></span>
+                    <span class="tick"><img src='img/number-14.png' width="30" height="30"></span>
+                    <span class="tick"><img src='img/number-15.png' width="30" height="30"></span>
+                    <span class="tick"><img src='img/number-16.png' width="30" height="30"></span>
+                  
+                </div>
+              
+            </div>
+          
+        </label><br><br><br>
+
+    </div>
+  <div id="wrapper">
+    <div id="first"><h3>Descrizione dei nodi</h3><p style="text-align:left;">I nodi del grafo sono suddivisi in cluster in base alla familiarità dei personaggi. Ogni nodo rappresentante un personaggio viene inserito nel grafo a partire dal capitolo in cui è citato per la prima volta.</p><h3>Descrizione degli archi</h3><p style="text-align:left;">Le azioni sono rappresentate dagli archi, che si suddividono in due categorie: gli archi verdi corrispondono alle azioni relative al capitolo attuale, mentre gli archi grigi indicano le azioni che si sono verificate nei capitoli precedenti.</p></div>
+    
+    <div id="second"><h3>Come interagire con il grafo</h3>
+<p style="text-align:left;">Per visualizzare le informazioni di un personaggio, fai clic sul suo nodo.<br>
+Per visualizzare tutti i nodi collegati a un nodo, posiziona il cursore del mouse su quel nodo.<br>
+Per visualizzare la descrizione di un'azione, posiziona il cursore del mouse su un arco.<br>
+Inoltre, è possibile effettuare lo zoom sul grafo e spostare il grafo sullo schermo trascinando il grafo con il cursore del mouse.<br>
+</p><br></div>
+    </div>
+        <center><h3>Stai visualizzando il capitolo<span id="rangeValue" class="range-value">1</span></h3></center>
+    <div id="graphDiv" width="90%">
+        <svg id="graph"></svg>
+    </div>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script type="module" src="./javascript/graph.js"></script>
+
+</body>
+
+</html>
+  <script  src="./script.js"></script>
+</body>
+</html>
