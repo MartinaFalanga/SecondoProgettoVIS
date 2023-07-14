@@ -13,7 +13,6 @@ var nodeText;
 var nodeTitle;
 var node;
 var link;
-var linksPositionMap = new Map();
 var simulation;
 
 var svg = d3.select("#graph")
@@ -42,7 +41,6 @@ function init() {
                         svg.selectAll(".info").remove();
                         svg.selectAll("#svgNodeInfo").remove();
                         d3.select(this).remove();
-                        svg.style("box-shadow", "0 0 0 0px rgba(0,0,0,0.65)");
                     }
 
                     function resetUsageGuide() {
@@ -163,8 +161,7 @@ function init() {
                         var characterNodes = [];
                         var characterEdges = [];
                         var familyEdges = [];
-
-                        var families = isFamily(actions);
+						var families = isFamily(actions);
 
                         nodesData.forEach(function (character) {
                             genderCodes.forEach(function (gender) {
@@ -173,7 +170,6 @@ function init() {
                                         "id": character["id"],
                                         "label": character["label"],
                                         "gender": gender["gender description"],
-                                        //"chapter": character["chapter"],
                                         "chapter": findChapter(character["chapter"]),
                                         "page": character["page"]
                                     };
@@ -272,14 +268,18 @@ function init() {
                             .attr("x", "7%")
                             .attr("width", 350)
                             .attr("height", 200)
-                            .style("fill", "gray");
+							.attr("rx", 15)
+                            .attr("ry", 15)
+                            .style("fill", "#d6e1e8")
+							.style("stroke", "#47abe1")
+							.style("stroke-dasharray", "3");
                         svgNodeInfo.append("text")
                             .attr("class", "info")
                             .text("ID: ")
                             .style("font-weight", 700)
                             .attr("x", "8%")
-                            .attr("y", "20%")
-                            .style("font-size", "13px")
+                            .attr("y", "25%")
+                            .style("font-size", "15px")
                             .append("tspan")
                             .text(d.srcElement.__data__.id)
                             .style("font-weight", 300);
@@ -287,8 +287,8 @@ function init() {
                             .attr("class", "info")
                             .text("Nome: ")
                             .attr("x", "8%")
-                            .attr("y", "10%")
-                            .style("font-size", "13px")
+                            .attr("y", "15%")
+                            .style("font-size", "15px")
                             .style("font-weight", 700)
                             .append("tspan")
                             .text(d.srcElement.__data__.label)
@@ -297,8 +297,8 @@ function init() {
                             .attr("class", "info")
                             .text("Genere: ")
                             .attr("x", "8%")
-                            .attr("y", "30%")
-                            .style("font-size", "13px")
+                            .attr("y", "35%")
+                            .style("font-size", "15px")
                             .style("font-weight", 700)
                             .append("tspan")
                             .text(d.srcElement.__data__.gender)
@@ -310,8 +310,8 @@ function init() {
                                     return "Prima apparizione: ";
                             })
                             .attr("x", "8%")
-                            .attr("y", "40%")
-                            .style("font-size", "13px")
+                            .attr("y", "45%")
+                            .style("font-size", "15px")
                             .style("font-weight", 700)
                             .append("tspan")
                             .text(function () {
@@ -326,21 +326,24 @@ function init() {
                             .attr("y", "60%")
                             .attr("width", 40)
                             .attr("height", 30)
+							.attr("rx", 15)
+                            .attr("ry", 15)
                             .style("fill", "white")
+							.style("stroke", "#47abe1")
+							.style("stroke-dasharray", "3")
                             .on("click", reset);
                         svgNodeInfo.append("text")
                             .attr("class", "info")
                             .text("Chiudi")
                             .attr("x", "33%")
                             .attr("y", "70%")
-                            .style("font-size", "13px");
-
-                        svg.style("box-shadow", "0 0 0 1600px rgba(0,0,0,0.65)");
+                            .style("font-size", "13px")
+							.style("font-weight", "bold");
                     }
 
                     function defineLinksColor(link) {
-                        if (link.isFamily == 1)
-                            return "transparent"
+                       // if (link.isFamily == 1)
+                       //      return "transparent"
                         if (link.chapter < chapterNumber) {
                             return "#999";
                         }
@@ -382,6 +385,8 @@ function init() {
                                     .attr("id", "nodeInfo")
                                     .attr("x", "40%")
                                     .attr("y", "7%")
+									.attr("rx", 15)
+                                    .attr("ry", 15)
                                     .attr("width", () => {
                                         var text = edgeInfo.append("text")
                                             .attr("class", "edgeAction")
@@ -453,7 +458,9 @@ function init() {
                                         return bbox.width + 40;
                                     })
                                     .attr("height", 50)
-                                    .style("fill", "#999");
+                                    .style("fill", "#d6e1e8")
+									.style("stroke", "#47abe1")
+							        .style("stroke-dasharray", "3");
                             }
                         }
                     }
@@ -497,8 +504,6 @@ function init() {
                     }
 
                     function defineLinkClass(d){
-                        if(d.isFamily == 1)
-                            return "none";
                         if(prevChapter < chapterNumber){
                             if(parseInt(d.chapter) == chapterNumber){
                                 return "color";
@@ -579,7 +584,8 @@ function init() {
                         const color = nodeGroup == null ? null : d3.scaleOrdinal(nodeGroups, colors);
 						const forceNode = d3.forceManyBody();
                         const forceLink = d3.forceLink(linksInChapter).id((l => nodesInChapter[l.index].id));
-                        const forceFamilyLink = d3.forceLink(familyLinkInChapter).id(({ index: i }) => nodesInChapter[i].id).distance(5).strength(0.05);
+						//const forceFamilyLink = d3.forceLink(familyLinkInChapter).id(({ index: i }) => nodesInChapter[i].id).distance(5).strength(0.05); VALORE CHE C'ERA PRIMA (cambia lo strength)
+                        const forceFamilyLink = d3.forceLink(familyLinkInChapter).id(({ index: i }) => nodesInChapter[i].id).distance(5).strength(0.03);
                         if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
                         if (linkStrength !== undefined) {
                             forceLink.strength(linkStrength);
