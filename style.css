@@ -59,8 +59,8 @@ p {
 }
 
 circle {
-  fill: #ccc;
-  stroke: #333;
+  fill: #F5F5DC;
+  stroke: black;
   stroke-width: 1.5px;
 }
 
@@ -151,7 +151,7 @@ transform: translateY(-4px);}
 
 .nodeName {
   font-family: "HelveticaNeue-Light";
-  color: #000;
+  color: #999;
 }
 
 
@@ -169,14 +169,6 @@ svg path{
 .node {
   stroke: #000;
   stroke-width: 1px;
-}
-
-#nodeInfo{
-  fill: orange;
-}
-
-#textNodeInfo{
-  color: red;
 }
 
 #my_dataviz{
