@@ -342,8 +342,6 @@ function init() {
                     }
 
                     function defineLinksColor(link) {
-                       // if (link.isFamily == 1)
-                       //      return "transparent"
                         if (link.chapter < chapterNumber) {
                             return "#999";
                         }
@@ -378,9 +376,8 @@ function init() {
                             var source = data.source;
                             var target = data.target;
                             var isFamily = data.isFamily;
-                            if (!isFamily) {
-                                var edgeInfo = d3.select("#graph");
-                                edgeInfo.append("rect")
+                            var edgeInfo = d3.select("#graph");
+                              edgeInfo.append("rect")
                                     .attr("class", "edgeAction")
                                     .attr("id", "nodeInfo")
                                     .attr("x", "40%")
@@ -461,7 +458,6 @@ function init() {
                                     .style("fill", "#d6e1e8")
 									.style("stroke", "#47abe1")
 							        .style("stroke-dasharray", "3");
-                            }
                         }
                     }
 
@@ -584,7 +580,6 @@ function init() {
                         const color = nodeGroup == null ? null : d3.scaleOrdinal(nodeGroups, colors);
 						const forceNode = d3.forceManyBody();
                         const forceLink = d3.forceLink(linksInChapter).id((l => nodesInChapter[l.index].id));
-						//const forceFamilyLink = d3.forceLink(familyLinkInChapter).id(({ index: i }) => nodesInChapter[i].id).distance(5).strength(0.05); VALORE CHE C'ERA PRIMA (cambia lo strength)
                         const forceFamilyLink = d3.forceLink(familyLinkInChapter).id(({ index: i }) => nodesInChapter[i].id).distance(5).strength(0.03);
                         if (nodeStrength !== undefined) forceNode.strength(nodeStrength);
                         if (linkStrength !== undefined) {
