@@ -29,118 +29,64 @@ var nodee = nodesGroup
 
 var linksGroup = svg.append("g");
 
-function init() {
+function start() {
     d3.json('./data/characters_nodes.json').then(function (nodesData) {
         d3.json('./data/characters_actions.json').then(function (edgesData) {
             d3.json('./data/list_actions.json').then(function (actionsData) {
                 d3.json('./data/gender_codes.json').then(function (gendersData) {
+					
+					function isFamily(actions) {
+						var family_actions = actions.filter(action => action["isFamily"] === 1).map(action => action["action"]);
+						var families = [];
 
+						for (let general_actions of edgesData) {
+							if (family_actions.includes(general_actions["action"])) {
+								let existingFamilyIndex = families.findIndex(family => 
+									family.includes(general_actions["source"]) || family.includes(general_actions["target"])
+								);
 
-                    function reset() {
-                        resetUsageGuide();
-                        svg.selectAll(".info").remove();
-                        svg.selectAll("#svgNodeInfo").remove();
-                        d3.select(this).remove();
-                    }
+								if (existingFamilyIndex !== -1) {
+									if (!families[existingFamilyIndex].includes(general_actions["source"])) {
+										families[existingFamilyIndex].push(general_actions["source"]);
+									}
+									if (!families[existingFamilyIndex].includes(general_actions["target"])) {
+										families[existingFamilyIndex].push(general_actions["target"]);
+									}
+								} else {
+									families.push([general_actions["source"], general_actions["target"]]);
+								}
+							}
+						}
+						return families;
+					}
+					
+					function discover_family(families, id_character) {
+						let foundFamilyIndex = families.findIndex((family) => {
+							return family.indexOf(id_character) != -1;
+						});
 
-                    function resetUsageGuide() {
-						d3.select().remove();
-                    }
-
-                    function isFamily(actions) {
-                        var parental_actions = [];
-
-                        actions.forEach(function (azione) {
-                            if (azione["isFamily"] == 1) {
-                                parental_actions.push(azione["action"]);
-                            }
-                        });
-
-                        var families = [];
-                        edgesData.forEach(function (general_actions) {
-                            if (parental_actions.indexOf(general_actions["action"]) != -1) {
-
-                                if (families.length == 0) {
-                                    family = [];
-                                    family.push(general_actions["source"]);
-                                    family.push(general_actions["target"]);
-                                    families.push(family);
-                                }
-
-                                else {
-                                    var aggiunto = 0;
-                                    for (var i in families) {
-                                        if (families[i].indexOf(general_actions["source"]) != -1) {
-                                            if (families[i].indexOf(general_actions["target"]) != -1) {
-                                                aggiunto = 1
-                                                continue;
-                                            }
-                                            else
-                                                families[i].push(general_actions["target"])
-                                            aggiunto = 1
-                                        }
-
-                                        else if (families[i].indexOf(general_actions["target"]) != -1) {
-                                            if (families[i].indexOf(general_actions["source"]) != -1) {
-                                                aggiunto = 1
-                                                continue;
-                                            }
-                                            else
-                                                families[i].push(general_actions["source"])
-                                            aggiunto = 1
-                                        }
-                                    }
-                                    if (aggiunto == 0) {
-                                        family = [];
-                                        family.push(general_actions["source"]);
-                                        family.push(general_actions["target"]);
-                                        families.push(family);
-                                    }
-                                }
-                            }
-                        });
-                        return families;
-                    }
-
-                    function found_family(families, id_character) {
-                        for (var i in families) {
-                            if (families[i].indexOf(id_character) != -1) {
-                                return i;
-                            }
-                        }
-
-                        var alone = families.length + parseInt(id_character);
-
-                        return alone;
-                    }
-
-                    function createclique(families) {
-                        var edges = [];
-                        for (var i in families) {
-
-                            for (var j in families[i]) {
-                                var source = families[i][j];
-
-                                for (var h in families[i]) {
-                                    var target = families[i][h]
-                                    if (j < h) {
-                                        var edge = {
-                                            "source": source,
-                                            "target": target,
-                                            "distance": 5
-                                        }
-                                        edges.push(edge);
-                                    }
-                                }
-                            }
-
-                        }
-                        return edges;
-                    }
+						return foundFamilyIndex !== -1 ? foundFamilyIndex : families.length + parseInt(id_character);
+					}
+					
+					function createclique(families) {
+						let edges = [];
+						families.forEach((family, i) => {
+							family.forEach((source, j) => {
+								family.filter((_, h) => j < h).forEach(target => {
+									edges.push({
+										"source": source,
+										"target": target,
+										"distance": 5
+									});
+								});
+							});
+						});
+						return edges;
+					}
 
                     function setDistance(source, target, families) {
-                        var source_family = found_family(families, source);
-                        var target_family = found_family(families, target);
+                        var source_family = discover_family(families, source);
+                        var target_family = discover_family(families, target);
                         if (source_family == target_family) {
                             return 1;
                         }
@@ -153,6 +99,17 @@ function init() {
                       else
                         return chapter;
 
+                    }
+					
+					function reset() {
+                        resetUsageGuide();
+                        svg.selectAll(".info").remove();
+                        svg.selectAll("#svgNodeInfo").remove();
+                        d3.select(this).remove();
+                    }
+
+                    function resetUsageGuide() {
+						d3.select().remove();
                     }
 
                     function createGraphTopologyArray(nodesData, edgesData, actions, genderCodes) {
@@ -201,16 +158,7 @@ function init() {
                         result[2] = familyEdges;
                         return result;
                     }
-
-                    function selectNodesInChapter(nodesInChapter) {
-                        var temp = []
-                        for (var i in nodesInChapter) {
-                            var nodeChapter = nodesInChapter[i][1];
-                            temp.push({ id: nodesInChapter[i][0], chapter: nodesInChapter[i][1], label: nodesInChapter[i][2], gender: nodesInChapter[i][3] });
-                        }
-                        return temp;
-                    }
-
+					
                     function selectLinksInChapter(linksInChapter, nodesInChapter) {
                         var temp = [];
                         var nodesIds = [];
@@ -368,136 +316,133 @@ function init() {
                         }
                         return dToReturn;
                     }
+					
+					function selectNodesForChapter(nodesInChapter) {
+						return nodesInChapter.map(node => {
+							return {
+								id: node[0],
+								chapter: node[1],
+								label: node[2],
+								gender: node[3]
+							};
+						});
+					}
+					
+                    function getActionText(source, target, action) {
+						switch(action) {
+							case "sibling":
+								return `${source.label} e ${target.label} sono fratelli.`;
+							case "descent":
+								return `${source.label} discende da ${target.label}.`;
+							case "marriage":
+								return `${source.label} e ${target.label} si sposano.`;
+							case "fostering":
+								return `${source.label} supporta ${target.label}.`;
+							case "betrothal":
+								return `${source.label} dichiara il suo amore a ${target.label}.`;
+							case "inheritance":
+								return `${source.label} eredita ${target.label}.`;
+							case "succession":
+								return `${source.label} succede a ${target.label}.`;
+							case "placed in command":
+								return `${source.label} mette al comando ${target.label}.`;
+							case "request assistance":
+								return `${source.label} richiede assistenza a ${target.label}.`;
+							case "offer assistance":
+								return `${source.label} offre assistenza a ${target.label}.`;
+							case "provide information":
+								return `${source.label} fornisce informazioni a ${target.label}.`;
+							case "discover information":
+								return `${source.label} scopre informazioni e si riferisce a ${target.label}.`;
+							case "invitation":
+								return `${source.label} invita ${target.label}.`;
+							case "giftgiving":
+								return `${source.label} dà un regalo a ${target.label}.`;
+							case "accusation":
+								return `${source.label} incolpa ${target.label}.`;
+							case "summons":
+								return `${source.label} convoca ${target.label}.`;
+							case "lying":
+								return `${source.label} mente a ${target.label}.`;
+							case "insult":
+								return `${source.label} insulta ${target.label}.`;
+							case "threat":
+								return `${source.label} minaccia ${target.label}.`;
+							case "intervention":
+								return `${source.label} interviene nelle cose di ${target.label}.`;
+							case "challenge":
+								return `${source.label} sfida ${target.label}.`;
+							case "hostility_non-lethal":
+								return `${source.label} è in ostilità non letale con ${target.label}.`;
+							case "hostility_lethal":
+								return `${source.label} è in ostilità letale con ${target.label}.`;
+							case "conversation_neutral":
+								return `${source.label} conversa con ${target.label}.`;
+							case "death_neutral":
+								return `${source.label} uccide in modo neutrale ${target.label}.`;
+							case "request information":
+								return `${source.label} richiede informazioni a ${target.label}.`;
+							case "name giving":
+								return `${source.label} dà un nome a ${target.label}.`;
+							case "suicide":
+								return `${source.label} commette un suicidio (${target.label} muore).`;
+							case "ownership":
+								return `${source.label} possiede ${target.label}.`;
+							default:
+								return "";
+						}
+					}
+					
+					function visualizeLinkDetails(link) {
+						var data = link.srcElement.__data__;
+						if (data.chapter == chapterNumber) {
+							var azione = data.action;
+							var source = data.source;
+							var target = data.target;
+							var edgeInfo = d3.select("#graph");
 
-                    function drawLinkInfos(link) {
-                        var data = link.srcElement.__data__;
-                        if (data.chapter == chapterNumber) {
-                            var azione = data.action;
-                            var source = data.source;
-                            var target = data.target;
-                            var isFamily = data.isFamily;
-                            var edgeInfo = d3.select("#graph");
-                              edgeInfo.append("rect")
-                                    .attr("class", "edgeAction")
-                                    .attr("id", "nodeInfo")
-                                    .attr("x", "40%")
-                                    .attr("y", "7%")
-									.attr("rx", 15)
-                                    .attr("ry", 15)
-                                    .attr("width", () => {
-                                        var text = edgeInfo.append("text")
-                                            .attr("class", "edgeAction")
-                                            .attr("id", "edgeActionText")
-                                            .text(function (d) {
-                                                if (azione == "sibling")
-                                                    return source.label + " e " + target.label + " sono fratelli.";
-                                                if (azione == "descent")
-                                                    return source.label + " discende da " + target.label + ".";
-                                                if (azione == "marriage")
-                                                    return source.label + " e " + target.label + " si sposano."
-                                                if (azione == "fostering")
-                                                    return source.label + " supporta " + target.label + "."
-                                                if (azione == "betrothal")
-                                                    return source.label + " dichiara il suo amore a " + target.label + "."
-                                                if (azione == "inheritance")
-                                                    return source.label + " eredita " + target.label + "."
-                                                if (azione == "succession")
-                                                    return source.label + " succede a " + target.label + "."
-                                                if (azione == "placed in command")
-                                                    return source.label + " mette al comando " + target.label + "."
-                                                if (azione == "request assistance")
-                                                    return source.label + " richiede assistenza a " + target.label + "."
-                                                if (azione == "offer assistance")
-                                                    return source.label + " offre assistenza a " + target.label + "."
-                                                if (azione == "provide information")
-                                                    return source.label + " fornisce informazioni a " + target.label + "."
-                                                if (azione == "discover information")
-                                                    return source.label + " scopre informazioni e si riferisce a " + target.label + "."
-                                                if (azione == "invitation")
-                                                    return source.label + " invita " + target.label + "."
-                                                if (azione == "giftgiving")
-                                                    return source.label + " dà un regalo a " + target.label + "."
-                                                if (azione == "accusation")
-                                                    return source.label + " incolpa " + target.label + "."
-                                                if (azione == "summons")
-                                                    return source.label + " convoca " + target.label + "."
-                                                if (azione == "lying")
-                                                    return source.label + " mente a " + target.label + "."
-                                                if (azione == "insult")
-                                                    return source.label + " insulta " + target.label + "."
-                                                if (azione == "threat")
-                                                    return source.label + " minaccia " + target.label + "."
-                                                if (azione == "intervention")
-                                                    return source.label + " interviene nelle cose di " + target.label + "."
-                                                if (azione == "challenge")
-                                                    return source.label + " sfida " + target.label + "."
-                                                if (azione == "hostility_non-lethal")
-                                                    return source.label + " è in ostilità non letale con " + target.label + "."
-                                                if (azione == "hostility_lethal")
-                                                    return source.label + " è in ostilità letale con " + target.label + "."
-                                                if (azione == "conversation_neutral")
-                                                    return source.label + " conversa con " + target.label + "."
-                                                if (azione == "death_neutral")
-                                                    return source.label + " uccide in modo neutrale " + target.label + "."
-                                                if (azione == "request information")
-                                                    return source.label + " richiede informazioni a " + target.label + "."
-                                                if (azione == "name giving")
-                                                    return source.label + " dà un nome a " + target.label + "."
-                                                if (azione == "suicide")
-                                                    return source.label + " commette un suicidio (" + target.label + " muore)."
-                                                if (azione == "ownership")
-                                                    return source.label + " possiede " + target.label + "."
-                                            })
-                                            .attr("x", "41%")
-                                            .attr("y", "10%")
-                                            .style("font-size", "13px");
-                                        var bbox = text.node().getBBox();
-                                        return bbox.width + 40;
-                                    })
-                                    .attr("height", 50)
-                                    .style("fill", "#d6e1e8")
-									.style("stroke", "#47abe1")
-							        .style("stroke-dasharray", "3");
-                        }
-                    }
+							var text = edgeInfo.append("text")
+								.attr("class", "edgeAction")
+								.attr("id", "edgeActionText")
+								.text(() => getActionText(source, target, azione))
+								.attr("x", "41%")
+								.attr("y", "10%")
+								.style("font-size", "13px");
 
-                    function sortLinks(linksToSort) {
-                        var sortedLinks = linksToSort.sort(function (a, b) {
-                            if (parseInt(a.source) > parseInt(b.source)) { return 1; }
-                            else if (parseInt(a.source) < parseInt(b.source)) { return -1; }
-                            else {
-                                if (parseInt(a.target) > parseInt(b.target)) { return 1; }
-                                if (parseInt(a.target) < parseInt(b.target)) { return -1; }
-                                else { return 0; }
-                            }
-                        });
-                        return sortedLinks;
-                    }
+							var bbox = text.node().getBBox();
 
-                    function setLinkIndexAndNum(links) {
-                        for (var i = 0; i < links.length; i++) {
-                            if (i != 0 && links[i].source == links[i - 1].source && links[i].target == links[i - 1].target) {
-                                links[i].occurrency = links[i - 1].occurrency + 1;
-                            }
-                            else {
-                                links[i].occurrency = 1;
-                            }
-
-                            mLinkNum[links[i].source + "," + links[i].target] = links[i].occurrency;
-                        }
-                    }
-
-                    function setLinkoccurrencyAndNumIterative(l) {
-                        if (!isNaN(mLinkNum[l.source + "," + l.target])) {
-                            l.occurrency = mLinkNum[l.source + "," + l.target] + 1;
-                        }
-                        else {
-                            l.occurrency = 1;
-                        }
-						
-                        mLinkNum[l.source + "," + l.target] = l.occurrency;
-                        return l;
-                    }
+							edgeInfo.insert("rect", "#edgeActionText")
+								.attr("class", "edgeAction")
+								.attr("id", "nodeInfo")
+								.attr("x", "40%")
+								.attr("y", "7%")
+								.attr("rx", 15)
+								.attr("ry", 15)
+								.attr("width", bbox.width + 40)
+								.attr("height", 50)
+								.style("fill", "#d6e1e8")
+								.style("stroke", "#47abe1")
+								.style("stroke-dasharray", "3");
+						}
+					}
+					
+					function sortLinks(linksToSort) {
+						return linksToSort.sort((a, b) => {
+							let sourceCompare = parseInt(a.source) - parseInt(b.source);
+							if (sourceCompare !== 0) {
+								return sourceCompare;
+							} else {
+								return parseInt(a.target) - parseInt(b.target);
+							}
+						});
+					}
+					
+					function linkOccurAndNIterative(l) {
+						let key = l.source + "," + l.target;
+						l.occurrency = !isNaN(mLinkNum[key]) ? mLinkNum[key] + 1 : 1;
+						mLinkNum[key] = l.occurrency;
+						return l;
+					}
 
                     function defineLinkClass(d){
                         if(prevChapter < chapterNumber){
@@ -520,7 +465,7 @@ function init() {
                             }
                             else return "grey";
                         }
-                      }
+                    }
 
                     async function defineLinksMovement(){
                         d3.selectAll(".color").attr("d", d => positionLink(d, mLinkNum));
@@ -573,7 +518,7 @@ function init() {
 						var allNodes = d3.map(nodes, (_, i) => ([N[i], NC[i], NLabel[i], NGender[i]]));
                         var linksInChapter = d3.map(links, (_, i) => ([LS[i], LT[i], LC[i], LA[i], LF[i], LI[i]]));
                         var familyLinks = d3.map(family, (_, i) => ([FS[i], FT[i]]));
-						var nodesInChapter = selectNodesInChapter(allNodes);
+						var nodesInChapter = selectNodesForChapter(allNodes);
                         var linksInChapter = selectLinksInChapter(linksInChapter, nodesInChapter);
                         var familyLinkInChapter = selectFamilyLinksInChapter(familyLinks, nodesInChapter);
 						if (G && nodeGroups === undefined) nodeGroups = d3.sort(G);
@@ -623,7 +568,7 @@ function init() {
                                   return 0.2;
                               }
                           })
-                          .on("mouseover", d => drawLinkInfos(d))
+                          .on("mouseover", d => visualizeLinkDetails(d))
                           .on("mouseleave", () => svg.selectAll(".edgeAction").remove());
 
 
@@ -640,41 +585,75 @@ function init() {
                         function isConnected(a, b) {
                             return linkedByIndex[a.id + "," + b.id] || linkedByIndex[b.id + "," + a.id] || a.id == b.id;
                         }
+						
+						function mouseOver(opacity) {
+							return function (d) {
+								var thisOpacity = 1;
+								var d = d.srcElement.__data__;
 
-                        function mouseOver(opacity) {
-                            return function (d) {
-                                var thisOpacity = 1;
-                                var d = d.srcElement.__data__;
-                                d3.selectAll("circle").style("stroke-opacity", function (o) {
-                                    thisOpacity = isConnected(d, o) ? 1 : opacity;
-                                    return thisOpacity;
-                                });
-                                d3.selectAll("circle").style("fill-opacity", function (o) {
-                                    thisOpacity = isConnected(d, o) ? 1 : opacity;
-                                    return thisOpacity;
-                                });
-                                link.attr("stroke-opacity", function (o) {
-                                    if(d.chapter <= chapterNumber && o.chapter <= chapterNumber)
-                                        return o.source.id == d.id || o.target.id == d.id ? 1 : opacity;
-                                    return 0;
-                                });
-                                link.attr("stroke", function (o) {
-                                    if(d.chapter <= chapterNumber && o.chapter <= chapterNumber)
-                                        return o.source.id == d.id || o.target.id == d.id ? defineLinksColor(o) : "transparent";
-                                    return "transparent";
-                                });
-                            };
-                        }
+								function applyOpacity(o) {
+									thisOpacity = isConnected(d, o) ? 1 : opacity;
+									return thisOpacity;
+								}
 
-                        function mouseOut() {
-                            d3.selectAll("circle").style("stroke-opacity", nodeStrokeOpacity);
-                            d3.selectAll("circle").style("fill-opacity", 1);
-                            link.attr("stroke-opacity", linkStrokeOpacity);
-                            link.attr("stroke", l => defineLinksColor(l));
-                            d3.selectAll(".color").attr("stroke", l => defineLinksColor(l));
-                            d3.selectAll(".grey").attr("stroke", "#999");
-                            d3.selectAll(".none").attr("stroke", "transparent");
-                        }
+								function applyLinkOpacity(o) {
+									if (d.chapter <= chapterNumber && o.chapter <= chapterNumber) {
+										return o.source.id == d.id || o.target.id == d.id ? 1 : opacity;
+									}
+									return 0;
+								}
+
+								function applyLinkColor(o) {
+									if (d.chapter <= chapterNumber && o.chapter <= chapterNumber) {
+										return o.source.id == d.id || o.target.id == d.id ? defineLinksColor(o) : "transparent";
+									}
+									return "transparent";
+								}
+
+								d3.selectAll("circle").style("stroke-opacity", applyOpacity);
+								d3.selectAll("circle").style("fill-opacity", applyOpacity);
+								link.attr("stroke-opacity", applyLinkOpacity);
+								link.attr("stroke", applyLinkColor);
+							};
+						}
+						
+						function applyCircleStrokeOpacity() {
+							d3.selectAll("circle").style("stroke-opacity", nodeStrokeOpacity);
+						}
+
+						function applyCircleFillOpacity() {
+							d3.selectAll("circle").style("fill-opacity", 1);
+						}
+
+						function applyLinkStrokeOpacity() {
+							link.attr("stroke-opacity", linkStrokeOpacity);
+						}
+
+						function applyLinkStroke() {
+							link.attr("stroke", l => defineLinksColor(l));
+						}
+
+						function applyColorStroke() {
+							d3.selectAll(".color").attr("stroke", l => defineLinksColor(l));
+						}
+
+						function applyGreyStroke() {
+							d3.selectAll(".grey").attr("stroke", "#999");
+						}
+
+						function applyNoneStroke() {
+							d3.selectAll(".none").attr("stroke", "transparent");
+						}
+
+						function mouseOut() {
+							applyCircleStrokeOpacity();
+							applyCircleFillOpacity();
+							applyLinkStrokeOpacity();
+							applyLinkStroke();
+							applyColorStroke();
+							applyGreyStroke();
+							applyNoneStroke();
+						}
 
                       if(isWritten==0){
                         node = nodee
@@ -766,27 +745,12 @@ function init() {
                         return Object.assign(svg.node(), { scales: { color } });
                     }
 
-					function updateGraph() {
-                        reset();
-                        prevChapter = chapterNumber;
-                        chapterNumber = parseInt(document.querySelector('#rangeField').value);
-                        links = sortLinks(links);
-                        links = links.map(l => setLinkoccurrencyAndNumIterative(l));
-                        ForceGraph({ nodes, links, family }, {
-                            nodeId: d => d.id,
-                            nodeGroup: d => d.group,
-                            nodeTitle: d => `${d.label}`,
-                            width,
-                            height: 600,
-                        });
-                    }
-					
-                    var result = createGraphTopologyArray(nodesData, edgesData, actionsData, gendersData);
+					var result = createGraphTopologyArray(nodesData, edgesData, actionsData, gendersData);
                     var nodes = result[0];
                     var links = result[1];
                     var family = result[2];
                     links = sortLinks(links);
-                    links = links.map(l => setLinkoccurrencyAndNumIterative(l));
+                    links = links.map(l => linkOccurAndNIterative(l));
 
                     ForceGraph({ nodes, links, family }, {
                         nodeId: d => d.id,
@@ -795,7 +759,27 @@ function init() {
                         width,
                         height,
                     });
-
+					
+					function updateGraph() {
+						reset();
+						let rangeField = document.querySelector('#rangeField');
+						prevChapter = chapterNumber;
+						chapterNumber = parseInt(rangeField.value);
+						let sortedLinks = sortLinks(links);
+						links = sortedLinks.map(link => linkOccurAndNIterative(link));
+						let graphOptions = {
+							nodes,
+							links,
+							family,
+							nodeId: node => node.id,
+							nodeGroup: node => node.group,
+							nodeTitle: node => `${node.label}`,
+							width,
+							height: 600,
+						};
+						ForceGraph(graphOptions);
+					}
+					
                     document.body.addEventListener("change", updateGraph);
 
                 });
@@ -803,4 +787,4 @@ function init() {
         });
     });
 }
-init();
+start();
