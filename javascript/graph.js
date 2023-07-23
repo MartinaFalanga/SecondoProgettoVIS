@@ -143,7 +143,7 @@ function start() {
                                         "action": action["action description"],
                                         "chapter": edge["chapter"],
                                         "distance": setDistance(edge["source"], edge["target"], families),
-                                        "page": edge["page"],
+                                       // "page": edge["page"],
                                         "isFamily": action["isFamily"]
                                     };
                                     characterEdges.push(resolvedEdge);
@@ -267,7 +267,23 @@ function start() {
                                     return "capitolo " + d.srcElement.__data__.chapter;
                             })
                             .style("font-weight", 300);
-                        svgNodeInfo.append("rect")
+						svgNodeInfo.append("text")
+                            .attr("class", "info")
+                            .text(() => {
+                                if (d.srcElement.__data__.page != "")
+                                    return "Pagina: ";
+                            })
+                            .attr("x", "8%")
+                            .attr("y", "55%")
+                            .style("font-size", "15px")
+                            .style("font-weight", 700)
+                            .append("tspan")
+                            .text(function () {
+                                if (d.srcElement.__data__.page != "")
+                                    return "pagina " + d.srcElement.__data__.page;
+                            })
+                            .style("font-weight", 300);
+						svgNodeInfo.append("rect")
                             .attr("class", "button")
                             .attr("id", "resetButton")
                             .attr("x", "30%")
@@ -323,7 +339,8 @@ function start() {
 								id: node[0],
 								chapter: node[1],
 								label: node[2],
-								gender: node[3]
+								gender: node[3],
+								page: node[4],
 							};
 						});
 					}
@@ -476,6 +493,7 @@ function start() {
                         nodeId = d => d.id,
                         nodeLabel = d => d.label,
                         nodeGender = d => d.gender,
+						nodePage = d => d.page,
                         nodeGroup,
                         nodeGroups,
                         nodeTitle = d => d.label,
@@ -503,6 +521,7 @@ function start() {
                         const N = d3.map(nodes, nodeId).map(intern);
                         const NLabel = d3.map(nodes, nodeLabel).map(intern);
                         const NGender = d3.map(nodes, nodeGender).map(intern);
+						const NPage = d3.map(nodes, nodePage).map(intern);
                         const NC = d3.map(nodes, nodeChapter).map(intern);
 						const LF = d3.map(links, linkIsFamily).map(intern);
                         const LA = d3.map(links, linkAction).map(intern);
@@ -515,7 +534,7 @@ function start() {
                         const FD = d3.map(family, familyDistance).map(intern);
                         const FS = d3.map(family, familySource).map(intern);
                         const FT = d3.map(family, familyTarget).map(intern);
-						var allNodes = d3.map(nodes, (_, i) => ([N[i], NC[i], NLabel[i], NGender[i]]));
+						var allNodes = d3.map(nodes, (_, i) => ([N[i], NC[i], NLabel[i], NGender[i], NPage[i]]));
                         var linksInChapter = d3.map(links, (_, i) => ([LS[i], LT[i], LC[i], LA[i], LF[i], LI[i]]));
                         var familyLinks = d3.map(family, (_, i) => ([FS[i], FT[i]]));
 						var nodesInChapter = selectNodesForChapter(allNodes);
