@@ -4,4 +4,7 @@ La rappresentazione fa uso di un grafo, realizzato con javascript e d3.js, in cu
 E' possibile interagire con l'interfaccia, per esempio per scegliere il capitolo che si vuole visualizzare, per ottenere più informazioni circa nodi e archi, e per vedere la rappresentazione a diversi livelli di astrazione con lo zoom+ e lo zoom- e spostando il grafo.
 
 ### Per la visualizzazione:
+E' possibile visualizzare il progetto in locale, avviando il seguente script:
 ./start.sh
+e aprire una pagina del browser al seguente link: http://localhost:8080
+Oppure tramite la demo disponibile al seguente link
